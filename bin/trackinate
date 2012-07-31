@@ -1,0 +1,25 @@
+#!/usr/bin/ruby
+
+require 'trackinator/importer'
+require 'trollop'
+
+opts = Trollop::options do
+  opt :youtrack_username, "Your YouTrack username", :type => :string, :short => "y"
+  opt :youtrack_password, "Your YouTrack password", :type => :string, :short => "p"
+  opt :google_username, "Your Google username", :type => :string, :short => "g"
+  opt :google_password, "Your Google password", :type => :string, :short => "a"
+  opt :youtrack_host, "YouTrack host", :type => :string, :short => "o"
+  opt :youtrack_port, "YouTrack port", :type => :int, :default => 80, :short => "r"
+  opt :youtrack_path_prefix, "YouTrack path prefix (e.g. '/youtrack/')", :type => :string, :default => "/", :short =>"e"
+end
+
+p opts
+
+Trollop::die :youtrack_username, "is required" if opts[:youtrack_username].empty?
+Trollop::die :youtrack_password, "is required" if opts[:youtrack_password].empty?
+Trollop::die :google_username, "is required" if opts[:google_username].empty?
+Trollop::die :google_password, "is required" if opts[:google_password].empty?
+Trollop::die :youtrack_host, "is required" if opts[:youtrack_host].empty?
+
+importer = Trackinator::Importer.new opts
+importer.import ARGV[0]

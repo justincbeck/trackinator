@@ -1,0 +1,6 @@
+if [[ -d "$rvm_path/environments" && -s "$rvm_path/environments/ruby-1.9.3-p194@trackinator" ]] ; then
+  \. "$rvm_path/environments/ruby-1.9.3-p194@trackinator"
+else
+  rvm --create use  "ruby-1.9.3-p194@trackinator"
+fi
+
