@@ -2,6 +2,7 @@
 
 require 'trackinator/importer'
 require 'trollop'
+require 'etc'
 
 opts = Trollop::options do
   opt :youtrack_username, "Your YouTrack username", :type => :string, :short => "y"
@@ -11,15 +12,40 @@ opts = Trollop::options do
   opt :youtrack_host, "YouTrack host", :type => :string, :short => "o"
   opt :youtrack_port, "YouTrack port", :type => :int, :default => 80, :short => "r"
   opt :youtrack_path_prefix, "YouTrack path prefix (e.g. '/youtrack/')", :type => :string, :default => "/", :short =>"e"
+  opt :create_rc, "Create a .trackinatorrc file in your home dir", :default => false, :short => "c"
 end
 
-p opts
+unless opts[:create_rc]
+  if File.exists?("#{Etc.getpwuid.dir}/.trackinatorrc")
+    file = File.open("#{Etc.getpwuid.dir}/.trackinatorrc", "r")
+    file.each do |line|
+      key_val = line.split("=") # TODO: This doesn't work - We loose stuff off the password strings
+      key = key_val[0]
+      value = key_val[1]
+      encoded_value = key.include?("password") ? Base64.decode64(value).chomp : value.chomp
+      opts[key.to_sym] = encoded_value
+    end
+  end
+end
 
-Trollop::die :youtrack_username, "is required" if opts[:youtrack_username].empty?
-Trollop::die :youtrack_password, "is required" if opts[:youtrack_password].empty?
-Trollop::die :google_username, "is required" if opts[:google_username].empty?
-Trollop::die :google_password, "is required" if opts[:google_password].empty?
-Trollop::die :youtrack_host, "is required" if opts[:youtrack_host].empty?
+Trollop::die :youtrack_username, "is required" if opts[:youtrack_username].nil?
+Trollop::die :youtrack_password, "is required" if opts[:youtrack_password].nil?
+Trollop::die :google_username, "is required" if opts[:google_username].nil?
+Trollop::die :google_password, "is required" if opts[:google_password].nil?
+Trollop::die :youtrack_host, "is required" if opts[:youtrack_host].nil?
+
+if opts[:create_rc]
+  unless File.exists?("#{Etc.getpwuid.dir}/.trackinatorrc")
+    file = File.new("#{Etc.getpwuid.dir}/.trackinatorrc", "w")
+    opts.keys.each do |key|
+      key_string = key.to_s
+      value_string = opts[key]
+
+      value = key_string.include?("password") ? Base64.encode64(value_string) : value_string
+      file.puts "#{key_string}=#{value}"
+    end
+  end
+end
 
 importer = Trackinator::Importer.new opts
 importer.import ARGV[0]

@@ -18,6 +18,8 @@ module Trackinator
     @youtrack_path_prefix
 
     def initialize opts
+      puts opts
+
       @stack = []
       @google_connection = Net::HTTP
       @google_client = GData::Client::Spreadsheets.new
@@ -29,8 +31,8 @@ module Trackinator
       @youtrack_port = opts[:youtrack_port]
       @youtrack_path_prefix = opts[:youtrack_path_prefix]
 
-      google_password = params[:google_password]
-      youtrack_password = params[:youtrack_password]
+      google_password = opts[:google_password]
+      youtrack_password = opts[:youtrack_password]
 
       login_youtrack youtrack_login, youtrack_password
 
