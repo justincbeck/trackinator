@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email         = %w{justinbeck@mac.com}
   gem.description   = %q{Imports a spreadsheet in to YouTrack}
   gem.summary       = %q{Imports a spreadsheet in to YouTrack}
-  gem.homepage      = ""
+  gem.homepage      = "https://github.com/justincbeck/trackinator"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
