@@ -19,9 +19,9 @@ unless opts[:create_rc]
   if File.exists?("#{Etc.getpwuid.dir}/.trackinatorrc")
     file = File.open("#{Etc.getpwuid.dir}/.trackinatorrc", "r")
     file.each do |line|
-      key_val = line.split("=") # TODO: This doesn't work - We loose stuff off the password strings
-      key = key_val[0]
-      value = key_val[1]
+      key = /^(.*?)=/.match(line)[1]
+      value = /=(.*)$/.match(line)[1]
+
       encoded_value = key.include?("password") ? Base64.decode64(value).chomp : value.chomp
       opts[key.to_sym] = encoded_value
     end

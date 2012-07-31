@@ -18,8 +18,6 @@ module Trackinator
     @youtrack_path_prefix
 
     def initialize opts
-      puts opts
-
       @stack = []
       @google_connection = Net::HTTP
       @google_client = GData::Client::Spreadsheets.new
