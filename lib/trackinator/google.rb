@@ -23,7 +23,7 @@ module Trackinator
     def get_spreadsheet_key file_name
       doc_feed = @client.get("http://spreadsheets.google.com/feeds/spreadsheets/private/full").to_xml
 
-      doc_feed.elements.each ('entry') do |entry|
+      doc_feed.elements.each('entry') do |entry|
         if entry.elements['title'].text.eql? file_name
           return entry.elements[1].text[/spreadsheets\/(.*)/, 1]
         end
