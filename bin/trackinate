@@ -9,9 +9,9 @@ opts = Trollop::options do
   opt :youtrack_password, "Your YouTrack password", :type => :string, :short => "p"
   opt :google_username, "Your Google username", :type => :string, :short => "g"
   opt :google_password, "Your Google password", :type => :string, :short => "a"
-  opt :youtrack_host, "YouTrack host", :type => :string, :short => "o"
-  opt :youtrack_port, "YouTrack port", :type => :int, :default => 80, :short => "r"
-  opt :youtrack_path_prefix, "YouTrack path prefix (e.g. '/youtrack/')", :type => :string, :default => "/", :short =>"e"
+  opt :host, "YouTrack host", :type => :string, :short => "o"
+  opt :port, "YouTrack port", :type => :int, :default => 80, :short => "r"
+  opt :path_prefix, "YouTrack path prefix (e.g. '/youtrack/')", :type => :string, :default => "/", :short =>"e"
   opt :create_rc, "Create a .trackinatorrc file in your home dir", :default => false, :short => "c"
 end
 
@@ -32,7 +32,7 @@ Trollop::die :youtrack_username, "is required" if opts[:youtrack_username].nil?
 Trollop::die :youtrack_password, "is required" if opts[:youtrack_password].nil?
 Trollop::die :google_username, "is required" if opts[:google_username].nil?
 Trollop::die :google_password, "is required" if opts[:google_password].nil?
-Trollop::die :youtrack_host, "is required" if opts[:youtrack_host].nil?
+Trollop::die :host, "is required" if opts[:host].nil?
 
 if opts[:create_rc]
   unless File.exists?("#{Etc.getpwuid.dir}/.trackinatorrc")
