@@ -1,6 +1,8 @@
 #!/usr/bin/ruby
 
 require 'trackinator/importer'
+require 'trackinator/you_track'
+require 'trackinator/google'
 require 'trollop'
 require 'etc'
 
@@ -34,6 +36,13 @@ Trollop::die :google_username, "is required" if opts[:google_username].nil?
 Trollop::die :google_password, "is required" if opts[:google_password].nil?
 Trollop::die :host, "is required" if opts[:host].nil?
 
+you_track = Trackinator::YouTrack.new opts
+google = Trackinator::Google.new opts
+
+Trollop::die "Check your YouTrack credentials and try again" unless you_track.is_logged_in?
+Trollop::die "Check your Google credentials and try again" unless google.is_logged_in?
+Trollop::die "You must supply a Google doc filename to import" if ARGV.empty? && opts[:create_rc]
+
 if opts[:create_rc]
   unless File.exists?("#{Etc.getpwuid.dir}/.trackinatorrc")
     file = File.new("#{Etc.getpwuid.dir}/.trackinatorrc", "w")
@@ -49,5 +58,13 @@ if opts[:create_rc]
   end
 end
 
-importer = Trackinator::Importer.new opts
-importer.import ARGV[0]
+if ARGV.length == 1
+  importer = Trackinator::Importer.new you_track, google
+  issues = importer.import ARGV[0], "YTTP"
+
+  if issues.length > 0
+    issues.each do |issue|
+      p issue
+    end
+  end
+end

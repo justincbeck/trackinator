@@ -1,14 +1,5 @@
 module Trackinator
   class YouTrack
-    @stack
-
-    @cookie
-    @connection
-
-    @host
-    @port
-    @path_prefix
-
     def initialize opts
       @stack = []
 
@@ -19,10 +10,16 @@ module Trackinator
       login opts[:youtrack_username], opts[:youtrack_password]
     end
 
+    def is_logged_in?
+      !@cookie.nil?
+    end
+
     def login username, password
       @connection = Net::HTTP.new @host, @port
       response = @connection.post "#{@path_prefix}rest/user/login", "login=#{username}&password=#{password}"
-      @cookie = response.response['Set-Cookie'].split('; ')[0]
+      if response.header.msg.eql? "OK"
+        @cookie = response.response['Set-Cookie'].split('; ')[0]
+      end
     end
 
     def create_ticket data
@@ -42,6 +39,43 @@ module Trackinator
 
       success
     end
+
+    def project_exists?(project)
+      issues = []
+
+      response = @connection.get("#{@path_prefix}rest/admin/project/#{project}", { 'Cookie' => @cookie, 'Content-Type' => 'text/plain; charset=utf-8' })
+      if response.header.msg.eql?("Not Found")
+        issues << "Project Error: Project doesn't exist!"
+      end
+
+      issues
+    end
+
+    def you_track_fields_defined?(project, fields)
+      issues = []
+
+      response = @connection.get("#{@path_prefix}rest/admin/project/#{project}/customfield", { 'Cookie' => @cookie, 'Content-Type' => 'text/plain; charset=utf-8' })
+      response_xml = REXML::Document.new(response.body)
+
+      you_track_fields = []
+
+      response_xml.elements.each('projectCustomFieldRefs/projectCustomField') { |element| you_track_fields << element.attributes["name"].downcase }
+
+      (fields - REQUIRED).each do |document_field|
+        unless you_track_fields.include?(document_field)
+          issues << "Validation Error: Custom field '#{document_field}' not found in YouTrack"
+        end
+      end
+
+      issues
+    end
+
+    def is_issue_exists? data
+      find_response_xml = REXML::Document.new(@connection.get("#{@path_prefix}rest/issue/byproject/#{data['project']}?filter=Import+Identifier:+#{data['project']}-#{data['id']}", { 'Cookie' => @cookie, 'Content-Type' => 'text/plain; charset=utf-8' }).body)
+      find_response_xml.elements['issues'].length > 0 ? find_response_xml.elements['issues/issue'].attributes['id'] : nil
+    end
+
+    private
 
     def update_dependencies issue
       issue_id = issue[0]
@@ -64,13 +98,6 @@ module Trackinator
           success
         end
       end
-    end
-
-    # YouTrack API calls
-
-    def is_issue_exists? data
-      find_response_xml = REXML::Document.new(@connection.get("#{@path_prefix}rest/issue/byproject/#{data['project']}?filter=Import+Identifier:+#{data['project']}-#{data['id']}", { 'Cookie' => @cookie, 'Content-Type' => 'text/plain; charset=utf-8' }).body)
-      find_response_xml.elements['issues'].length > 0 ? find_response_xml.elements['issues/issue'].attributes['id'] : nil
     end
 
     def create_youtrack_ticket data

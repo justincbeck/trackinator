@@ -1,5 +1,22 @@
-require "trackinator/version"
+require 'trackinator/version'
+require 'trackinator/google'
+require 'trackinator/you_track'
+
 
 module Trackinator
-  # Your code goes here...
+
+  ID = /^(?:\d+\.?)+$/
+
+  TYPE = /^story$|^feature$|^task$|^bug$/
+
+  PRIORITY = /^low$|^normal$|^high$|^show-stopper$/
+
+  REQUIRED = %w{
+      project
+      id
+      summary
+      description
+      outcome
+  }
+
 end

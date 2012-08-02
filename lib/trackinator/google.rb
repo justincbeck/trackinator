@@ -1,10 +1,16 @@
 module Trackinator
   class Google
-    @client
-
     def initialize opts
       @client = GData::Client::Spreadsheets.new
-      @client.clientlogin(opts[:google_username], opts[:google_password])
+      begin
+        @token = @client.clientlogin(opts[:google_username], opts[:google_password])
+      rescue
+        @token = nil
+      end
+    end
+
+    def is_logged_in?
+      !@token.nil?
     end
 
     def get_tickets file_name
@@ -19,6 +25,8 @@ module Trackinator
 
       tickets
     end
+
+    private
 
     def get_spreadsheet_key file_name
       doc_feed = @client.get("http://spreadsheets.google.com/feeds/spreadsheets/private/full").to_xml
