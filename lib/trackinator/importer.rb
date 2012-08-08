@@ -13,10 +13,10 @@ module Trackinator
       @google = google
     end
 
-    def import file_name, project = nil
+    def import file_name
       ticket_data = @google.get_tickets file_name
 
-      issues = validate_tickets(project, ticket_data)
+      issues = validate_tickets(ticket_data)
 
       if issues.length == 0
         ticket_data.each do |entry|
@@ -30,8 +30,10 @@ module Trackinator
 
     private
 
-    def validate_tickets project, tickets
+    def validate_tickets tickets
       issues = []
+
+      project = tickets[0]['project']
 
       issues.concat(@you_track.project_exists?(project))
       issues.concat(@you_track.you_track_fields_defined?(project, tickets[0].keys))

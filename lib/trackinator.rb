@@ -19,4 +19,13 @@ module Trackinator
       outcome
   }
 
+  TRACKINATOR_RC = %w{
+      youtrack_username
+      youtrack_password
+      google_username
+      google_password
+      host
+      path_prefix
+  }
+
 end

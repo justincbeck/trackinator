@@ -25,6 +25,7 @@ unless opts[:create_rc]
       value = /=(.*)$/.match(line)[1]
 
       encoded_value = key.include?("password") ? Base64.decode64(value).chomp : value.chomp
+
       opts[key.to_sym] = encoded_value
     end
   end
@@ -41,14 +42,14 @@ google = Trackinator::Google.new opts
 
 Trollop::die "Check your YouTrack credentials and try again" unless you_track.is_logged_in?
 Trollop::die "Check your Google credentials and try again" unless google.is_logged_in?
-Trollop::die "You must supply a Google doc filename to import" if ARGV.empty? && opts[:create_rc]
+Trollop::die "You must supply a Google doc filename to import" if ARGV.empty? && !opts[:create_rc]
 
 if opts[:create_rc]
   unless File.exists?("#{Etc.getpwuid.dir}/.trackinatorrc")
     file = File.new("#{Etc.getpwuid.dir}/.trackinatorrc", "w")
     opts.keys.each do |key|
       key_string = key.to_s
-      unless key_string.include?("given")
+      if TRACKINATOR_RC.include?(key_string) && !key_string.include?("given")
         value_string = opts[key]
 
         value = key_string.include?("password") ? Base64.encode64(value_string) : value_string
@@ -60,7 +61,7 @@ end
 
 if ARGV.length == 1
   importer = Trackinator::Importer.new you_track, google
-  issues = importer.import ARGV[0], "YTTP"
+  issues = importer.import(ARGV[0])
 
   if issues.length > 0
     issues.each do |issue|
