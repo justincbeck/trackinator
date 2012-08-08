@@ -21,7 +21,7 @@ module Trackinator
       if issues.length == 0
         ticket_data.each do |entry|
           issue_id = @you_track.is_issue_exists? entry
-          #false unless !issue_id.nil? ? @you_track.update_ticket(issue_id, entry) : @you_track.create_ticket(entry)
+          false unless !issue_id.nil? ? @you_track.update_ticket(issue_id, entry) : @you_track.create_ticket(entry)
         end
       end
 
