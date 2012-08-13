@@ -14,6 +14,8 @@ module Trackinator
     end
 
     def get_tickets file_name
+      puts "reading document..."
+
       spreadsheet_feed = @client.get("http://spreadsheets.google.com/feeds/worksheets/#{get_spreadsheet_key(file_name)}/private/full").to_xml
       spreadsheet_list_data = @client.get(spreadsheet_feed.elements[1, 'entry'].elements[1, 'content'].attributes['src']).to_xml
 

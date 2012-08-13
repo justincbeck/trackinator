@@ -19,11 +19,15 @@ module Trackinator
       issues = validate_tickets(ticket_data)
 
       if issues.length == 0
+        puts "importing..."
+
         ticket_data.each do |entry|
           issue_id = @you_track.is_issue_exists? entry
           false unless !issue_id.nil? ? @you_track.update_ticket(issue_id, entry) : @you_track.create_ticket(entry)
         end
       end
+
+      puts "done..."
 
       issues
     end
@@ -31,19 +35,20 @@ module Trackinator
     private
 
     def validate_tickets tickets
+      puts "validating..."
       issues = []
 
       project = tickets[0]['project']
 
       issues.concat(@you_track.project_exists?(project))
-      issues.concat(@you_track.you_track_fields_defined?(project, tickets[0].keys))
 
       tickets.each do |ticket|
+        issues.concat(@you_track.you_track_fields_defined?(project, ticket.keys.collect! { |key| key.downcase }))
         issues.concat(validate_fields(ticket))
         issues.concat(validate_formats(ticket))
       end
 
-      issues
+      issues.uniq
     end
 
     def validate_fields ticket

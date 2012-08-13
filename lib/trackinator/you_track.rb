@@ -35,7 +35,7 @@ module Trackinator
       success ? (success = set_summary_and_description(issue_id, data['summary'], data['description'])) : (return success)
       success ? (success = set_type(issue_id, data['type'])) : (return success)
       success ? (success = set_import_identifier(issue_id, "#{data['project']}-#{data['id']}")) : (return success)
-      success ? (success = set_design_reference(issue_id, "#{data['references']}")) : (return success) unless data['references'].nil?
+      success ? (success = set_design_reference(issue_id, "#{data['designreference']}")) : (return success) unless data['designreference'].nil?
 
       success
     end
@@ -57,11 +57,15 @@ module Trackinator
       response = @connection.get("#{@path_prefix}rest/admin/project/#{project}/customfield", { 'Cookie' => @cookie, 'Content-Type' => 'text/plain; charset=utf-8' })
       response_xml = REXML::Document.new(response.body)
 
-      you_track_fields = []
+      you_track_fields = %w{ notes }
 
-      response_xml.elements.each('projectCustomFieldRefs/projectCustomField') { |element| you_track_fields << element.attributes["name"].downcase }
+      response_xml.elements.each('projectCustomFieldRefs/projectCustomField') do |element|
+        you_track_fields << element.attributes["name"].sub(' ', '').downcase
+      end
 
-      (fields - REQUIRED).each do |document_field|
+      required_fields = fields - REQUIRED
+
+      required_fields.each do |document_field|
         unless you_track_fields.include?(document_field)
           issues << "Validation Error: Custom field '#{document_field}' not found in YouTrack"
         end
