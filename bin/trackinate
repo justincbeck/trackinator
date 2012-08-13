@@ -1,8 +1,6 @@
 #!/usr/bin/ruby
 
-require 'trackinator/importer'
-require 'trackinator/you_track'
-require 'trackinator/google'
+require 'trackinator'
 require 'trollop'
 require 'etc'
 
@@ -45,16 +43,20 @@ Trollop::die "Check your Google credentials and try again" unless google.is_logg
 Trollop::die "You must supply a Google doc filename to import" if ARGV.empty? && !opts[:create_rc]
 
 if opts[:create_rc]
-  unless File.exists?("#{Etc.getpwuid.dir}/.trackinatorrc")
-    file = File.new("#{Etc.getpwuid.dir}/.trackinatorrc", "w")
-    opts.keys.each do |key|
-      key_string = key.to_s
-      if TRACKINATOR_RC.include?(key_string) && !key_string.include?("given")
-        value_string = opts[key]
+  trackinator_rc_count = Dir.entries(Etc.getpwuid.dir).collect { |entry| /trackinatorrc/.match(entry) }.compact.length
 
-        value = key_string.include?("password") ? Base64.encode64(value_string) : value_string
-        file.puts "#{key_string}=#{value}"
-      end
+  if trackinator_rc_count > 0 && File.exist?("#{Etc.getpwuid.dir}/.trackinatorrc")
+    File.rename("#{Etc.getpwuid.dir}/.trackinatorrc", "#{Etc.getpwuid.dir}/.trackinatorrc.#{trackinator_rc_count.to_s}")
+  end
+
+  file = File.new("#{Etc.getpwuid.dir}/.trackinatorrc", "w")
+  opts.keys.each do |key|
+    key_string = key.to_s
+    if Trackinator::TRACKINATOR_RC.include?(key_string) && !key_string.include?("given")
+      value_string = opts[key]
+
+      value = key_string.include?("password") ? Base64.encode64(value_string) : value_string
+      file.puts "#{key_string}=#{value}"
     end
   end
 end

@@ -32,7 +32,7 @@ module Trackinator
 
     def update_ticket issue_id, data
       success = set_platform(issue_id, data['platform'])
-      #success ? (success = set_summary_and_description(issue_id, data['summary'], data['description'])) : (return success)
+      success ? (success = set_summary_and_description(issue_id, data['summary'], data['description'])) : (return success)
       success ? (success = set_type(issue_id, data['type'])) : (return success)
       success ? (success = set_import_identifier(issue_id, "#{data['project']}-#{data['id']}")) : (return success)
       success ? (success = set_design_reference(issue_id, "#{data['references']}")) : (return success) unless data['references'].nil?

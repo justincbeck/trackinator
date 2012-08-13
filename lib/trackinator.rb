@@ -1,6 +1,7 @@
 require 'trackinator/version'
 require 'trackinator/google'
 require 'trackinator/you_track'
+require 'trackinator/importer'
 
 
 module Trackinator
