@@ -44,7 +44,7 @@ module Trackinator
       data = {}
 
       REXML::XPath.match(entry, 'gsx:*').each do |col|
-        data[col.name] = URI.escape(col.text) unless col.text.nil?
+        data[col.name] = col.text unless col.text.nil?
       end
 
       data

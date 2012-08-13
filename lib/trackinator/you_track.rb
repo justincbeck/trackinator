@@ -1,3 +1,6 @@
+require 'erb'
+include ERB::Util
+
 module Trackinator
   class YouTrack
     def initialize opts
@@ -32,7 +35,7 @@ module Trackinator
 
     def update_ticket issue_id, data
       success = set_platform(issue_id, data['platform'])
-      success ? (success = set_summary_and_description(issue_id, data['summary'], data['description'])) : (return success)
+      success ? (success = set_summary_and_description(issue_id, data['summary'], data['description'], data['outcome'])) : (return success)
       success ? (success = set_type(issue_id, data['type'])) : (return success)
       success ? (success = set_import_identifier(issue_id, "#{data['project']}-#{data['id']}")) : (return success)
       success ? (success = set_design_reference(issue_id, "#{data['designreference']}")) : (return success) unless data['designreference'].nil?
@@ -105,7 +108,7 @@ module Trackinator
     end
 
     def create_youtrack_ticket data
-      response = @connection.put("#{@path_prefix}rest/issue?project=#{data['project']}&summary=#{data['summary']}&description=#{data['description']}&priority=#{data['priority']}", nil, { 'Cookie' => @cookie, 'Content-Type' => 'text/plain; charset=utf-8' })
+      response = @connection.put("#{@path_prefix}rest/issue?project=#{data['project']}&summary=#{url_encode(data['summary'])}&description=#{url_encode(construct_description(data['description'], data['outcome']))}&priority=#{data['priority']}", nil, { 'Cookie' => @cookie, 'Content-Type' => 'text/plain; charset=utf-8' })
       return response.header["Location"].split("/").last, response.header.msg
     end
 
@@ -114,40 +117,50 @@ module Trackinator
       response.header.msg.eql? "OK"
     end
 
-    def set_summary_and_description issue_id, summary, description
+    def set_summary_and_description issue_id, summary, description, outcome
       return true if summary.nil? || description.nil?
 
-      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/?summary=#{summary}&description=#{description}&disableNotifications=true", nil, { 'Cookie' => @cookie })
+      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/?summary=#{url_encode(summary)}&description=#{url_encode(construct_description(description, outcome))}&disableNotifications=true", nil, { 'Cookie' => @cookie })
       response.header.msg.eql? "OK"
     end
 
     def set_platform issue_id, platform
       return true if platform.nil?
 
-      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/execute?command=Platform+#{platform}&disableNotifications=true", nil, { 'Cookie' => @cookie })
+      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/execute?command=Platform+#{URI.escape(platform)}&disableNotifications=true", nil, { 'Cookie' => @cookie })
       response.header.msg.eql? "OK"
     end
 
     def set_type issue_id, type
       return true if type.nil?
 
-      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/execute?command=Type+#{type}&disableNotifications=true", nil, { 'Cookie' => @cookie })
+      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/execute?command=Type+#{URI.escape(type)}&disableNotifications=true", nil, { 'Cookie' => @cookie })
       response.header.msg.eql? "OK"
     end
 
     def set_import_identifier issue_id, import_id
       return true if import_id.nil?
 
-      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/execute?command=Import+Identifier+#{import_id}&disableNotifications=true", nil, { 'Cookie' => @cookie })
+      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/execute?command=Import+Identifier+#{URI.escape(import_id)}&disableNotifications=true", nil, { 'Cookie' => @cookie })
       response.header.msg.eql? "OK"
     end
 
     def set_design_reference issue_id, reference
       return true if reference.nil?
 
-      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/execute?command=Design+Reference+#{reference}&disableNotifications=true", nil, { 'Cookie' => @cookie })
+      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/execute?command=Design+Reference+#{URI.escape(reference)}&disableNotifications=true", nil, { 'Cookie' => @cookie })
       response.header.msg.eql? "OK"
     end
 
+    def construct_description description, outcome
+      template = ERB.new <<-EOF
+<% unless outcome.nil? %>'''Steps'''<% end %>
+<%= description %>
+<% unless outcome.nil? %>'''Outcome'''<% end %>
+<%= outcome %>
+      EOF
+
+      template.result(binding)
+    end
   end
 end
