@@ -155,8 +155,13 @@ module Trackinator
     def construct_description description, outcome
       template = ERB.new <<-EOF
 <% unless outcome.nil? %>'''Steps'''<% end %>
+<% if description.split(';').length > 1 %><% description.split(';').each do |step| %>
+*<%= step.strip %><% end %>
+<% else %>
 <%= description %>
-<% unless outcome.nil? %>'''Outcome'''<% end %>
+<% end %>
+<% unless outcome.nil? %>'''Outcome'''
+<% end %>
 <%= outcome %>
       EOF
 
