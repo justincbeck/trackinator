@@ -3,7 +3,6 @@ require 'trackinator/google'
 require 'trackinator/you_track'
 require 'trackinator/importer'
 
-
 module Trackinator
 
   ID = /^(?:\d+\.?)+$/
