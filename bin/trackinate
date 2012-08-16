@@ -70,4 +70,6 @@ if ARGV.length == 1
       p issue
     end
   end
+
+  puts "done..."
 end

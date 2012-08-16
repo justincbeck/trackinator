@@ -27,8 +27,6 @@ module Trackinator
         end
       end
 
-      puts "done..."
-
       issues
     end
 
@@ -44,6 +42,7 @@ module Trackinator
 
       tickets.each do |ticket|
         issues.concat(@you_track.you_track_fields_defined?(project, ticket.keys.collect! { |key| key.downcase }))
+
         issues.concat(validate_fields(ticket))
         issues.concat(validate_formats(ticket))
       end
