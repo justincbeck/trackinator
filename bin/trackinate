@@ -36,7 +36,9 @@ Trollop::die :google_password, "is required" if opts[:google_password].nil?
 Trollop::die :host, "is required" if opts[:host].nil?
 
 you_track = Trackinator::YouTrack.new opts
-google = Trackinator::Google.new opts
+you_track.login(opts[:youtrack_username], opts[:youtrack_password])
+google = Trackinator::Google.new(GData::Client::Spreadsheets.new)
+google.login(opts)
 
 Trollop::die "Check your YouTrack credentials and try again" unless you_track.is_logged_in?
 Trollop::die "Check your Google credentials and try again" unless google.is_logged_in?

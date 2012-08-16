@@ -9,8 +9,6 @@ module Trackinator
       @host = opts[:host]
       @port = opts[:port]
       @path_prefix = opts[:path_prefix]
-
-      login opts[:youtrack_username], opts[:youtrack_password]
     end
 
     def is_logged_in?

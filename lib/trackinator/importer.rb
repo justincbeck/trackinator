@@ -36,6 +36,10 @@ module Trackinator
       puts "validating..."
       issues = []
 
+      if tickets.length == 0
+        return issues
+      end
+
       project = tickets[0]['project']
 
       issues.concat(@you_track.project_exists?(project))

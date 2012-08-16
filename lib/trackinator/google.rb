@@ -1,10 +1,13 @@
 module Trackinator
   class Google
-    def initialize opts
-      @client = GData::Client::Spreadsheets.new
+    def initialize client
+      @client = client
+    end
+
+    def login opts
       begin
         @token = @client.clientlogin(opts[:google_username], opts[:google_password])
-      rescue
+      rescue Exception => e
         @token = nil
       end
     end
@@ -16,9 +19,7 @@ module Trackinator
     def get_tickets file_name
       puts "reading document..."
 
-      spreadsheet_feed = @client.get("http://spreadsheets.google.com/feeds/worksheets/#{get_spreadsheet_key(file_name)}/private/full").to_xml
-      spreadsheet_list_data = @client.get(spreadsheet_feed.elements[1, 'entry'].elements[1, 'content'].attributes['src']).to_xml
-
+      spreadsheet_list_data = get_spreadsheet_list_data file_name
       tickets = []
 
       spreadsheet_list_data.elements.each('entry') do |entry|
@@ -29,6 +30,12 @@ module Trackinator
     end
 
     private
+
+    def get_spreadsheet_list_data file_name
+      spreadsheet_feed = @client.get("http://spreadsheets.google.com/feeds/worksheets/#{get_spreadsheet_key(file_name)}/private/full").to_xml
+      spreadsheet_list_url = spreadsheet_feed.elements[1, 'entry'].elements[1, 'content'].attributes['src']
+      @client.get(spreadsheet_list_url).to_xml
+    end
 
     def get_spreadsheet_key file_name
       doc_feed = @client.get("http://spreadsheets.google.com/feeds/spreadsheets/private/full").to_xml
