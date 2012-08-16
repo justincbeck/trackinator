@@ -118,8 +118,6 @@ module Trackinator
     end
 
     def set_summary_and_description issue_id, summary, description, outcome
-      return true if summary.nil? || description.nil?
-
       response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/?summary=#{url_encode(summary)}&description=#{url_encode(construct_description(description, outcome))}&disableNotifications=true", nil, { 'Cookie' => @cookie })
       response.header.msg.eql? "OK"
     end
@@ -153,9 +151,11 @@ module Trackinator
     end
 
     def construct_description description, outcome
+      return if description.nil?
+
       template = ERB.new <<-EOF
 <% unless outcome.nil? %>'''Steps'''<% end %>
-<% if description.split(';').length > 1 %><% description.split(';').each do |step| %>
+<% if !description.nil? && description.split(';').length > 1 %><% description.split(';').each do |step| %>
 *<%= step.strip %><% end %>
 <% else %>
 <%= description %>
