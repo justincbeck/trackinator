@@ -8,6 +8,8 @@ require 'trackinator'
 module Trackinator
   class Importer
 
+    attr_accessor :trial_run
+
     def initialize you_track, google
       @you_track = you_track
       @google = google
@@ -18,7 +20,7 @@ module Trackinator
 
       issues = validate_tickets(ticket_data)
 
-      if issues.length == 0
+      if issues.length == 0 && !@trial_run
         puts "importing..."
 
         ticket_data.each do |entry|

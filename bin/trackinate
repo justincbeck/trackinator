@@ -13,6 +13,7 @@ opts = Trollop::options do
   opt :port, "YouTrack port", :type => :int, :default => 80, :short => "r"
   opt :path_prefix, "YouTrack path prefix (e.g. '/youtrack/')", :type => :string, :default => "/", :short =>"e"
   opt :create_rc, "Create a .trackinatorrc file in your home dir", :default => false, :short => "c"
+  opt :trial_run, "Try it out but don't actually import", :default => false, :short => "t"
 end
 
 unless opts[:create_rc]
@@ -65,6 +66,7 @@ end
 
 if ARGV.length == 1
   importer = Trackinator::Importer.new you_track, google
+  importer.trial_run = opts[:trial_run]
   issues = importer.import(ARGV[0])
 
   if issues.length > 0
