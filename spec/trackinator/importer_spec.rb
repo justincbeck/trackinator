@@ -68,36 +68,42 @@ module Trackinator
       end
 
       it "#validate_fields should return no issues and validate feature" do
-        issues = @importer.send(:validate_fields, { "type" => "feature", "project" => "YTTP", "id" => "1.2", "summary" => "A summary", "description" => "A description", "outcome" => "An outcome" })
+        issues = @importer.send(:validate_fields, { "project" => "YTTP", "id" => "1.2", "type" => "feature", "subsystem" => "ios", "summary" => "A summary", "description" => "A description", "outcome" => "An outcome" })
         issues.should == []
       end
 
       it "#validate_fields should return 1 issue: missing project" do
-        issues = @importer.send(:validate_fields, { "type" => "feature", "id" => "1.2", "summary" => "A summary", "description" => "A description", "outcome" => "An outcome" })
+        issues = @importer.send(:validate_fields, { "id" => "1.2", "type" => "feature", "subsystem" => "ios", "summary" => "A summary", "description" => "A description", "outcome" => "An outcome" })
         issues.size.should == 1
         issues[0].should == "Validation Error: Ticket with ID: 1.2 is missing required field 'project'"
       end
 
       it "#validate_fields should return 1 issue: missing id" do
-        issues = @importer.send(:validate_fields, { "type" => "feature", "project" => "YTTP", "summary" => "A summary", "description" => "A description", "outcome" => "An outcome" })
+        issues = @importer.send(:validate_fields, { "project" => "YTTP", "type" => "feature", "subsystem" => "ios", "summary" => "A summary", "description" => "A description", "outcome" => "An outcome" })
         issues.size.should == 1
         issues[0].should == "Validation Error: Ticket with ID:  is missing required field 'id'"
       end
 
+      it "#validate_fields should return 1 issue: missing subsystem" do
+        issues = @importer.send(:validate_fields, { "project" => "YTTP", "id" => "1.2", "type" => "feature", "summary" => "A summary", "description" => "A description", "outcome" => "An outcome" })
+        issues.size.should == 1
+        issues[0].should == "Validation Error: Ticket with ID: 1.2 is missing required field 'subsystem'"
+      end
+
       it "#validate_fields should return 1 issue: missing summary" do
-        issues = @importer.send(:validate_fields, { "type" => "feature", "project" => "YTTP", "id" => "1.2", "description" => "A description", "outcome" => "An outcome" })
+        issues = @importer.send(:validate_fields, { "project" => "YTTP", "id" => "1.2", "type" => "feature", "subsystem" => "ios", "description" => "A description", "outcome" => "An outcome" })
         issues.size.should == 1
         issues[0].should == "Validation Error: Ticket with ID: 1.2 is missing required field 'summary'"
       end
 
       it "#validate_fields should return 1 issue: missing description" do
-        issues = @importer.send(:validate_fields, { "type" => "feature", "project" => "YTTP", "id" => "1.2", "summary" => "A summary", "outcome" => "An outcome" })
+        issues = @importer.send(:validate_fields, { "project" => "YTTP", "id" => "1.2", "type" => "feature", "subsystem" => "ios", "summary" => "A summary", "outcome" => "An outcome" })
         issues.size.should == 1
         issues[0].should == "Validation Error: Ticket with ID: 1.2 is missing required field 'description'"
       end
 
       it "#validate_fields should return 1 issue: missing outcome" do
-        issues = @importer.send(:validate_fields, { "type" => "feature", "project" => "YTTP", "id" => "1.2", "summary" => "A summary", "description" => "A description" })
+        issues = @importer.send(:validate_fields, { "project" => "YTTP", "id" => "1.2", "type" => "feature", "subsystem" => "ios", "summary" => "A summary", "description" => "A description" })
         issues.size.should == 1
         issues[0].should == "Validation Error: Ticket with ID: 1.2 is missing required field 'outcome'"
       end
@@ -111,34 +117,34 @@ module Trackinator
         @importer = Importer.new @you_track, @google
       end
 
-      it "#validate_formats should return no issues and validate" do
+      it "#validate_formats should return no issues and validate type" do
         issues = @importer.send(:validate_formats, { "type" => "feature" })
         issues.should == []
       end
 
-      it "#validate_formats should return no issues and validate" do
+      it "#validate_formats should fail validation on type" do
         issues = @importer.send(:validate_formats, { "type" => "foo" })
         issues.size.should == 1
         issues[0].should == "Validation Error: Ticket with ID:  has field 'type' with invalid format"
       end
 
-      it "#validate_formats should return no issues and validate" do
+      it "#validate_formats should fail validation on id" do
         issues = @importer.send(:validate_formats, { "id" => "1.2" })
         issues.should == []
       end
 
-      it "#validate_formats should return no issues and validate" do
+      it "#validate_formats should fail validation on id" do
         issues = @importer.send(:validate_formats, { "id" => "junk" })
         issues.size.should == 1
         issues[0].should == "Validation Error: Ticket with ID: junk has field 'id' with invalid format"
       end
 
-      it "#validate_formats should return no issues and validate" do
+      it "#validate_formats should return no issues and validate priority" do
         issues = @importer.send(:validate_formats, { "priority" => "normal" })
         issues.should == []
       end
 
-      it "#validate_formats should return no issues and validate" do
+      it "#validate_formats should fail validation on priority" do
         issues = @importer.send(:validate_formats, { "priority" => "junk" })
         issues.size.should == 1
         issues[0].should == "Validation Error: Ticket with ID:  has field 'priority' with invalid format"

@@ -32,7 +32,7 @@ module Trackinator
     end
 
     def update_ticket issue_id, data
-      success = set_platform(issue_id, data['platform'])
+      success = set_subsystem(issue_id, data['subsystem'])
       success ? (success = set_summary_and_description(issue_id, data['summary'], data['description'], data['outcome'])) : (return success)
       success ? (success = set_type(issue_id, data['type'])) : (return success)
       success ? (success = set_import_identifier(issue_id, "#{data['project']}-#{data['id']}")) : (return success)
@@ -76,7 +76,7 @@ module Trackinator
     end
 
     def is_issue_exists? data
-      find_response_xml = REXML::Document.new(@connection.get("#{@path_prefix}rest/issue/byproject/#{data['project']}?filter=Import+Identifier:+#{data['project']}-#{data['id']}", { 'Cookie' => @cookie, 'Content-Type' => 'text/plain; charset=utf-8' }).body)
+      find_response_xml = REXML::Document.new(@connection.get("#{@path_prefix}rest/issue/byproject/#{data['project']}?filter=Import+Identifier:+#{data['project']}-#{data['id']}+Subsystem:+#{data['subsystem']}", { 'Cookie' => @cookie, 'Content-Type' => 'text/plain; charset=utf-8' }).body)
       find_response_xml.elements['issues'].length > 0 ? find_response_xml.elements['issues/issue'].attributes['id'] : nil
     end
 
@@ -120,10 +120,10 @@ module Trackinator
       response.header.msg.eql? "OK"
     end
 
-    def set_platform issue_id, platform
-      return true if platform.nil?
+    def set_subsystem issue_id, subsystem
+      return true if subsystem.nil?
 
-      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/execute?command=Platform+#{URI.escape(platform)}&disableNotifications=true", nil, { 'Cookie' => @cookie })
+      response = @connection.post("#{@path_prefix}rest/issue/#{issue_id}/execute?command=Subsystem+#{URI.escape(subsystem)}&disableNotifications=true", nil, { 'Cookie' => @cookie })
       response.header.msg.eql? "OK"
     end
 

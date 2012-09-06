@@ -11,9 +11,12 @@ module Trackinator
 
   PRIORITY = /^low$|^normal$|^high$|^show-stopper$/
 
+  SUBSYSTEM = /^android$|^backend$|^ios$/
+
   REQUIRED = %w{
       project
       id
+      subsystem
       summary
       description
       outcome

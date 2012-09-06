@@ -8,7 +8,7 @@ require 'trackinator'
 module Trackinator
   class Importer
 
-    attr_accessor :trial_run
+    attr_accessor :dry_run
 
     def initialize you_track, google
       @you_track = you_track
@@ -18,9 +18,11 @@ module Trackinator
     def import file_name
       ticket_data = @google.get_tickets file_name
 
-      issues = validate_tickets(ticket_data)
+      issues = []
+      issues.concat validate_headings(ticket_data[0])
+      issues.concat validate_tickets(ticket_data)
 
-      if issues.length == 0 && !@trial_run
+      if issues.length == 0 && !@dry_run
         puts "importing..."
 
         ticket_data.each do |entry|
@@ -33,6 +35,10 @@ module Trackinator
     end
 
     private
+
+    def validate_headings headings
+      []
+    end
 
     def validate_tickets tickets
       puts "validating..."
@@ -72,12 +78,20 @@ module Trackinator
       issues = []
 
       ticket.keys.each do |key|
-        if Trackinator.const_defined?("#{key.upcase}") && Trackinator.const_get("#{key.upcase}").match(ticket[key].downcase).nil?
+        unless validate_format(key, ticket[key])
           issues << "Validation Error: Ticket with ID: #{ticket["id"]} has field '#{key}' with invalid format"
         end
       end
 
       issues
+    end
+
+    def validate_format key, value
+      if Trackinator.const_defined?("#{key.upcase}") && Trackinator.const_get("#{key.upcase}").match(value.downcase).nil?
+        false
+      else
+        true
+      end
     end
   end
 end
