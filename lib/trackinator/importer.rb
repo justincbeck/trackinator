@@ -53,7 +53,7 @@ module Trackinator
       issues.concat(@you_track.project_exists?(project))
 
       tickets.each do |ticket|
-        issues.concat(@you_track.you_track_fields_defined?(project, ticket.keys.collect! { |key| key.downcase }))
+        issues.concat(@you_track.required_you_track_fields_defined?(project))
 
         issues.concat(validate_fields(ticket))
         issues.concat(validate_formats(ticket))
@@ -65,7 +65,7 @@ module Trackinator
     def validate_fields ticket
       issues = []
 
-      REQUIRED.each do |req_field|
+      GOOGLE_REQUIRED.each do |req_field|
         unless ticket.keys.include?(req_field) || ticket["type"].downcase.eql?("story")
           issues << "Validation Error: Ticket with ID: #{ticket["id"]} is missing required field '#{req_field}'"
         end

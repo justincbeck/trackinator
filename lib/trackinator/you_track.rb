@@ -52,23 +52,35 @@ module Trackinator
       issues
     end
 
-    def you_track_fields_defined?(project, fields)
+    # Here's a potential approach for validating that YouTrack fields are present
+    #
+    # get YouTrack fields from server
+    # augment YouTrack fields where necessary (import identifier?)
+    # copy YouTrack fields and normalize copy (remove spaces, downcase)
+    # create map of YouTrack fields to nYouTrack fields
+    # get Google fields from doc
+    # normalize Google fields (remove spaces, downcase)
+    # subtract nGoogle from nYouTrack (leaving only missing YouTrack fields)
+    # subtract nYouTrack from nGoogle (leaving only missing Google fields)
+    # warn on missing nGoogle
+    # fail validation on nYouTrack using map to get actual field names for display
+    # ...
+    # or, just hard code the fucking thing and be done with it
+
+    def required_you_track_fields_defined?(project)
+      you_track_fields = []
       issues = []
 
       response = @connection.get("#{@path_prefix}rest/admin/project/#{project}/customfield", { 'Cookie' => @cookie, 'Content-Type' => 'text/plain; charset=utf-8' })
       response_xml = REXML::Document.new(response.body)
 
-      you_track_fields = %w{ notes }
-
       response_xml.elements.each('projectCustomFieldRefs/projectCustomField') do |element|
-        you_track_fields << element.attributes["name"].sub(' ', '').downcase
+        you_track_fields << element.attributes["name"]
       end
 
-      required_fields = fields - REQUIRED
-
-      required_fields.each do |document_field|
-        unless you_track_fields.include?(document_field)
-          issues << "Validation Error: Custom field '#{document_field}' not found in YouTrack"
+      YOU_TRACK_REQUIRED.each do |required_field|
+        unless you_track_fields.include?(required_field)
+          issues << "Validation Error: Required field '#{required_field}' not found in YouTrack project"
         end
       end
 
