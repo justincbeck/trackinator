@@ -13,7 +13,7 @@ module Trackinator
 
   SUBSYSTEM = /^android$|^backend$|^ios$/
 
-  REQUIRED = %w{
+  GOOGLE_REQUIRED = %w{
       project
       id
       subsystem
@@ -21,6 +21,12 @@ module Trackinator
       description
       outcome
   }
+
+  YOU_TRACK_REQUIRED = [
+      "Type",
+      "Subsystem",
+      "Import Identifier"
+  ]
 
   TRACKINATOR_RC = %w{
       youtrack_username
