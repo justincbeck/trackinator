@@ -66,7 +66,7 @@ module Trackinator
       issues = []
 
       GOOGLE_REQUIRED.each do |req_field|
-        unless ticket.keys.include?(req_field) || ticket["type"].downcase.eql?("story")
+        unless ticket.keys.include?(req_field) || (!ticket["type"].nil? && ticket["type"].downcase.eql?("story"))
           issues << "Validation Error: Ticket with ID: #{ticket["id"]} is missing required field '#{req_field}'"
         end
       end
