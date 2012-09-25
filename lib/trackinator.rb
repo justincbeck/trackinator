@@ -11,7 +11,7 @@ module Trackinator
 
   PRIORITY = /^low$|^normal$|^high$|^show-stopper$/
 
-  SUBSYSTEM = /^android$|^backend$|^ios$|^web$/
+  SUBSYSTEM = /^android$|^backend$|^ios$|^web$|^roku$/
 
   GOOGLE_REQUIRED = %w{
       project
